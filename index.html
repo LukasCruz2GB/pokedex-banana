@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="script.js"></script>
-    <title>aba bizarra</title>
+    <script src="server.js"></script>
+    <title>Docs</title>
 </head>
 
 <body>
     <h1>Pokedex</h1>
-    <form action="http://localhost:8080/cartas/nova" method="post">
+    <form action="http://localhost:8080/cartas/nova" method="post"> 
 
         <label> nome</label>
         <input type="text" name="nome" id="nome">
@@ -21,31 +21,90 @@
         <label> hp</label>
         <input type="number" name="hp" id="hp">
 
-
-
         <button type="submit"> Enviar</button>
     </form>
-
-
-    <form id="form">
+    
+    <form id="formulario">
         <label>Buscar:</label>
-        <input type="number" name="id" id="number">
+        <input type="number" name="id" id="">
         <button type="submit">Achar</button>
     </form>
+    
+    <hr>
+    <h2>Atualização de cartas!</h2>
+        <form id="formAtualizar">
+            <label for="">Id da carta(OBRIGATÓRIO!!!)</label>
+            <input type="number" id="idEdit" required>
+            <br><br>
 
+            <label>Novo nome:</label>
+            <input type="text" id="nomeEdit" placeholder="Deixe em branco para manter!">
+            <br><br>
+
+            <label>Novo HP:</label>
+            <input type="text" id="hpEdit" placeholder="Deixe em branco para manter!">
+            <br><br>
+            <button type="submit">Atualizar</button>
+        </form>
+<!-- seção de script para o PUT -->
     <script>
-        const formulario = document.getElementById("form")
-        formulario.addEventListener('submit', function (event) {
-            event.preventDefault()
+        const formAtualizar = document.getElementById('formAtualizar');
 
-            fetch('http://localhost:8080/cartas')
-                .then(res => res.json())
-                .then(dados => {
-                    console.log("Dados adicionados ao servidor, e eles são ", dados)
-                }).catch(erro => { console.error("DEU ERRO", erro) })
-        })
+        formAtualizar.addEventListener('submit', function(event){
+            event.preventDefault();
 
+            //capturamos os valores dos input
+            const id = document.getElementById('idEdit').value;
+            const novoNome = document.getElementById('nomeEdit').value
+            const novoHp = document.getElementById('hpEdit').value
+
+            //criar um objeto so com o texto
+            const dadosNovos = {}
+
+            //Verifica se está vazio 
+            if(novoNome){
+                dadosNovos.nome = novoNome;
+            }
+            if(novoHp){
+                dadosNovos.hp = novoHp;
+            }
+
+            //Parte da atualização
+            fetch(`http://localhost:8080/cartas/${id}`,{
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dadosNovos)
+            })
+            .then(res => res.json())
+            .then(dados => {
+                console.log("Servidor devolveu: ", dados)
+                if(dados.erro){
+                    alert("Erro: " + dados.erro)
+                }else{
+                    alert(dados.mensagem)
+                }
+            })
+            .catch(erro => console.error("Erro fatal na comunicação: ", erro));
+        });
     </script>
+
+<!-- seção de script para o POST -->
+    <script>
+        const formulario = document.getElementById('formulario')
+        formulario.addEventListener('submit', function(event){
+            event.preventDefault() 
+            fetch ('http://localhost:8080/cartas')
+            .then(res => res.json()
+            .then(dados => {
+                console.log("Dados adicionados ao servidor, e eles são", dados)
+            })
+            .catch(erro =>{console.error("DEU ERRO", erro)}))
+        })
+    </script>
+<!-- seção de script para o POST -->
+
 </body>
 
 </html>
